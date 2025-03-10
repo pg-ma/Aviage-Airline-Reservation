@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Details</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS for adjusting select button width */
+        .custom-select-class {
+            width: 150px; /* Adjust the width as needed */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Flight Details</h1>
+        <p>Flight ID: {{ flight_availability.FlightId }}</p>
+        <p>Departure: {{ flight_availability.Departure }}</p>
+        <p>Arrival: {{ flight_availability.Arrival }}</p>
+        <p>Origin Airport: {{ flight_availability.origin_airport.AirportName }}</p>
+        <p>Destination Airport: {{ flight_availability.destination_airport.AirportName }}</p>
+        <p>Airline Name: {{ flight_availability.flight.airline.AirlineName }} {{ flight_availability.flight.airline.AirlineId }}</p>
+        
+        <!-- Form for selecting class type and entering first and last name -->
+        <form method="post" action="{{ url_for('confirm_booking', flight_id=flight_availability.FlightId) }}">
+            <input type="hidden" name="airline_id" value="{{ flight_availability.flight.airline.AirlineId }}">
+            <input type="hidden" name="flight_id" value="{{ flight_availability.FlightId }}">
+            
+            <!-- Class Type Selection -->
+            <div class="form-group">
+                <label for="class_type">Select Class Type:</label>
+                <select class="form-control custom-select-class" name="class_type" id="class_type" required>
+                    <option value="economy" selected>Economy</option>
+                    <option value="business">Business</option>
+                </select>
+            </div>
+            
+            <!-- Display the price based on the selected class type -->
+            <p id="price_display">Price: {{ currencies }} {{ '%.2f' | format(flight_availability.FlightPrice) }} </p>
+            
+            <!-- First Name -->
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" required>
+            </div>
+            
+            <!-- Last Name -->
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" required>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">Confirm Booking</button>
+        </form>
+    </div>
+
+    <script>
+        // JavaScript code to update price display based on class type selection
+        document.getElementById('class_type').addEventListener('change', function() {
+            var classType = this.value;
+            var priceDisplay = document.getElementById('price_display');
+            var price = {{ flight_availability.FlightPrice }};
+            var currency = '{{ currencies }}'; // Assuming currencies is a string containing the currency symbol
+            if (classType === 'business') {
+                price *= 1.5;
+            }
+            priceDisplay.textContent = 'Price: ' + currency + ' ' + price.toFixed(2) ;
+        });
+    </script>
+
+</body>
+</html>
+
+
+
+ <!-- Flash Messages -->
+ {% with messages = get_flashed_messages() %}
+ {% if messages %}
+     <div class="alert alert-info" role="alert" style="max-width: 300px; max-height: 100px; overflow: auto;">
+         {% for message in messages %}
+             {{ message }}
+         {% endfor %}
+     </div>
+ {% endif %}
+ {% endwith %}

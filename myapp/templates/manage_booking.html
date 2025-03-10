@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %} Manage Booking {% endblock %}
+
+{% block head %}
+    <style>
+        body {
+            background: linear-gradient(135deg, #ece9e6 0%, #ffffff 100%);
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #003366;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #ffffff !important;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            color: #ffffff !important;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #ffcc00 !important;
+        }
+        h1 {
+            color: #003366;
+            text-shadow: 1px 1px 2px #ffcc00;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .container {
+            margin-top: 50px;
+            max-width: 1000px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #003366;
+            border-color: #003366;
+            font-weight: bold;
+            transition: background-color 0.3s, border-color 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .btn-primary:hover {
+            background-color: #ffcc00;
+            border-color: #ffcc00;
+        }
+        .btn-danger {
+            background-color: #8b0000;
+            border-color: #8b0000;
+            font-weight: bold;
+            transition: background-color 0.3s, border-color 0.3s;
+            width: 100%;
+        }
+        .btn-danger:hover {
+            background-color: #ff6347;
+            border-color: #ff6347;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .table-striped tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Manage Booking</h1>
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Passenger Name</th>
+                    <th>Airline</th>
+                    <th>Class</th>
+                    <th>Status</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Arrival</th>
+                    <th>Departure</th>
+                    <th>Balance</th>
+                    <th>Actions</th> <!-- Header for action buttons -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.passengerName }}</td>
+                    <td>{{ booking.flight_availability.flight.airline.AirlineName }} {{ booking.flight_availability.flight.airline.AirlineId }}</td>
+                    <td>{{ booking.class_type.ClassTypeName }}</td>
+                    <td>{{ booking.status.Status }}</td>
+                    <td>{{ booking.flight_availability.origin_airport.AirportName }}</td>
+                    <td>{{ booking.flight_availability.destination_airport.AirportName }}</td>
+                    <td>{{ booking.Arrival }}</td>
+                    <td>{{ booking.Departure }}</td>
+                    <td>{% if booking.Balance < 0 %} 0.00 {% else %} {{ booking.Balance|round(2) }} {% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('view_flight_details', booking_id=booking.BookingId) }}" class="btn btn-primary">View Details</a>
+                        {% if booking.Balance > 0 %}
+                            <a href="{{ url_for('partial_payment', booking_id=booking.BookingId) }}" class="btn btn-danger">Pay Balance</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %} Flight Details {% endblock %}
+
+{% block head %}
+    <style>
+        body {
+            background: linear-gradient(135deg, #ece9e6 0%, #ffffff 100%);
+            font-family: 'Arial', sans-serif;
+        }
+        .navbar {
+            background-color: #003366;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #ffffff !important;
+            font-size: 1.5rem;
+        }
+        .nav-link {
+            color: #ffffff !important;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #ffcc00 !important;
+        }
+        h1 {
+            color: #003366;
+            text-shadow: 1px 1px 2px #ffcc00;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .btn-primary, .btn-info, .btn-danger {
+            font-weight: bold;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .btn-primary {
+            background-color: #003366;
+            border-color: #003366;
+        }
+        .btn-primary:hover {
+            background-color: #ffcc00;
+            border-color: #ffcc00;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #138496;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+        .container {
+            margin-top: 50px;
+            max-width: 800px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+{% endblock %}
+{% block content %}
+
+    <div class="container">
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-success" role="alert" style="max-width: 300px; margin: 0 auto; text-align: center;">
+            {{ messages[0] }}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <h1>Flight Details</h1>
+        <p><strong>Passenger Name:</strong> {{ passenger_name }}</p>
+        <p><strong>Airline Name:</strong> {{ flight.flight.airline.AirlineName }} {{ flight.flight.airline.AirlineId }}</p>
+        <p><strong>Flight Class:</strong> {{ class_type }}</p>
+        <p><strong>Status:</strong> {{ status }}</p>
+        <p><strong>Departure:</strong> {{ flight.Departure }}</p>
+        <p><strong>Arrival:</strong> {{ flight.Arrival }}</p>
+        <p><strong>Origin Airport:</strong> {{ flight.origin_airport.AirportName }}</p>
+        <p><strong>Destination Airport:</strong> {{ flight.destination_airport.AirportName }}</p>
+        
+
+        <!-- Buttons -->
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Search Flight</a>
+        <a href="{{ url_for('manage_booking') }}" class="btn btn-info">Manage Booking</a>
+        <form action="{{ url_for('cancel_flight', booking_id=booking_id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger">Cancel Flight</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+{% endblock %}

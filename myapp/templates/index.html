@@ -1,0 +1,76 @@
+{% extends "base.html" %} 
+
+{% block title %} Home {% endblock %} 
+
+{% block content %}
+<h1>Flight Search</h1>
+<form id="searchForm" method="POST" action="/search">
+    <div class="input-group">
+        <input type="text" class="form-control" name="origin" placeholder="From" aria-label="Origin">
+        <input type="text" class="form-control" name="destination" placeholder="To" aria-label="Destination">
+        <select class="form-control" name="form_type" id="form_type" aria-label="Form Type">
+            <option value="country">Country</option>
+            <option value="city">City</option>
+        </select>
+        <select class="form-control" name="origin_country" id="origin_country" style="display: none;" aria-label="Origin Country">
+            <option value="">Select Country</option>
+            {% for country in countries %}
+            <option value="{{ country.CountryId }}">{{ country.CountryName }}</option>
+            {% endfor %}
+        </select>
+        <select class="form-control" name="destination_country" id="destination_country" style="display: none;" aria-label="Destination Country">
+            <option value="">Select Country</option>
+            {% for country in countries %}
+            <option value="{{ country.CountryId }}">{{ country.CountryName }}</option>
+            {% endfor %}
+        </select>
+        <select class="form-control" name="origin_city" id="origin_city" style="display: none;" aria-label="Origin City">
+            <option value="">Select City</option>
+            {% for city in cities %}
+            <option value="{{ city.CityName }}">{{ city.CityName }}</option>
+            {% endfor %}
+        </select>
+        <select class="form-control" name="destination_city" id="destination_city" style="display: none;" aria-label="Destination City">
+            <option value="">Select City</option>
+            {% for city in cities %}
+            <option value="{{ city.CityName }}">{{ city.CityName }}</option>
+            {% endfor %}
+        </select>
+        <div class="input-group-append">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+
+<div id="searchResults" class="container" style="display: none;">
+    <!-- Flight Search Results will be rendered here -->
+</div>
+
+<script>
+    // Function to submit search form via AJAX
+    $(document).ready(function() {
+        $('#searchForm').submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/search',
+                data: $(this).serialize(),
+                success: function(response) {
+                    $('#searchResults').html(response).show();
+                }
+            });
+        });
+
+        // Toggle visibility based on form type selection
+        $('#form_type').change(function() {
+            if ($(this).val() == 'country') {
+                $('#origin_country, #destination_country').show();
+                $('#origin_city, #destination_city').hide();
+            } else {
+                $('#origin_country, #destination_country').hide();
+                $('#origin_city, #destination_city').show();
+            }
+        });
+    });
+</script>
+{% endblock %}

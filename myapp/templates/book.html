@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %} Flight Details {% endblock %}
+
+{% block head %}
+<style>
+    body {
+        background: linear-gradient(135deg, #ece9e6 0%, #ffffff 100%);
+        font-family: 'Arial', sans-serif;
+    }
+    .navbar {
+        background-color: #003366;
+    }
+    .navbar-brand {
+        font-weight: bold;
+        color: #ffffff !important;
+        font-size: 1.5rem;
+    }
+    .nav-link {
+        color: #ffffff !important;
+        font-weight: bold;
+        transition: color 0.3s;
+    }
+    .nav-link:hover {
+        color: #ffcc00 !important;
+    }
+    h1 {
+        color: #003366;
+        text-shadow: 1px 1px 2px #ffcc00;
+        margin-top: 20px;
+        text-align: center;
+    }
+    .container {
+        margin-top: 50px;
+        max-width: 800px;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .btn-primary, .btn-info, .btn-danger {
+        font-weight: bold;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+    .btn-primary {
+        background-color: #003366;
+        border-color: #003366;
+    }
+    .btn-primary:hover {
+        background-color: #ffcc00;
+        border-color: #ffcc00;
+    }
+    .btn-info {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+    }
+    .btn-info:hover {
+        background-color: #138496;
+        border-color: #138496;
+    }
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+    }
+    .custom-select-class {
+        width: 150px;
+    }
+    .error-message {
+        color: red;
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <h1>Enter Flight Information</h1>
+
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        
+        <p><strong>Departure:</strong> {{ flight_availability.Departure }}</p>
+        <p><strong>Arrival:</strong> {{ flight_availability.Arrival }}</p>
+        <p><strong>Origin Airport:</strong> {{ flight_availability.origin_airport.AirportName }}</p>
+        <p><strong>Destination Airport:</strong> {{ flight_availability.destination_airport.AirportName }}</p>
+        <p><strong>Airline Name:</strong> {{ flight_availability.flight.airline.AirlineName }} {{ flight_availability.flight.airline.AirlineId }}</p>
+
+        <form id="bookingForm" method="POST" action="{{ url_for('pay_full') }}">
+            <input type="hidden" name="airline_id" value="{{ flight_availability.flight.airline.AirlineId }}">
+            <input type="hidden" name="flight_id" value="{{ flight_availability.FlightId }}">
+            <input type="hidden" name="arrival" value="{{ flight_availability.Arrival.strftime('%Y-%m-%d %H:%M:%S') }}">
+            <input type="hidden" name="departure" value="{{ flight_availability.Departure.strftime('%Y-%m-%d %H:%M:%S') }}">
+            <input type="hidden" name="origin" value="{{ flight_availability.Origin }}">
+            <input type="hidden" name="destination" value="{{ flight_availability.Destination }}">
+            <input type="hidden" id="total_price" name="total_price" value="">
+
+            <div class="form-group">
+                <label for="class_type">Select Class Type:</label>
+                <select class="form-control custom-select-class" name="class_type" id="class_type" required>
+                    <option value="economy" selected>Economy</option>
+                    <option value="business">Business</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="first_name">First Name:</label>
+                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                <small class="error-message" id="firstNameError">First name is required.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Last Name:</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                <small class="error-message" id="lastNameError">Last name is required.</small>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="showModal(event, 'full')">Pay Full</button>
+            <button type="button" class="btn btn-info" onclick="showModal(event, 'partial')">Pay Partial</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap Modal -->
+    <div class="modal fade" id="bookingModal" tabindex="-1" role="dialog" aria-labelledby="bookingModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookingModalLabel">Confirm Payment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Name: <span id="modalName"></span></p>
+                    <p>Class Type: <span id="modalClassType"></span></p>
+                    <p id="modalFlightPrice">Flight Price: </p>
+                    <p id="modalOriginTaxDisplay">{{ flight_availability.origin_airport.AirportName }} Tax: {{ origin_currency }} {{ '%.2f' | format(origin_airport_tax) }}</p>
+                    <p id="modalDestinationTaxDisplay">{{ flight_availability.destination_airport.AirportName }} Tax: {{ origin_currency }} {{ '%.2f' | format(converted_destination_tax) }}</p>
+                    <p id="modalTotalPriceDisplay">Total Price: </p>
+                    
+                    <div id="partialPaymentSection" style="display: none;">
+                        <label for="partialAmount">Enter Partial Amount:</label>
+                        <input type="number" id="partialAmount" class="form-control" min="0" step="0.01" oninput="updateBalance()">
+                        <p>Balance: <span id="modalBalance"></span></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmPaymentButton" onclick="payFull()">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#class_type').on('change', updatePrice);
+        });
+
+        function updatePrice() {
+            var classType = $('#class_type').val();
+            var basePrice = {{ flight_availability.FlightPrice }};
+            var originTax = {{ origin_airport_tax }};
+            var destinationTax = {{ converted_destination_tax }};
+            var originCurrency = '{{ origin_currency }}';
+            if (classType === 'business') {
+                basePrice *= 1.5;
+            }
+            var totalPrice = basePrice + originTax + destinationTax;
+            $('#price_display').text('Flight Price: ' + originCurrency + ' ' + basePrice.toFixed(2));
+            $('#modalFlightPrice').text('Flight Price: ' + originCurrency + ' ' + basePrice.toFixed(2));
+            $('#modalTotalPriceDisplay').text('Total Price: ' + originCurrency + ' ' + totalPrice.toFixed(2));
+            $('#modalClassType').text(classType.charAt(0).toUpperCase() + classType.slice(1));
+            $('#total_price').val(totalPrice.toFixed(2));
+        }
+
+        function showModal(event, paymentType) {
+            event.preventDefault();
+            var firstName = $('#first_name').val();
+            var lastName = $('#last_name').val();
+            var departureDate = new Date("{{ flight_availability.Departure }}");
+            var currentDate = new Date();
+            var timeDiff = departureDate.getTime() - currentDate.getTime();
+            var daysDiff = timeDiff / (1000 * 3600 * 24);
+
+            var isValid = true;
+            if (!firstName) {
+                $('#firstNameError').show();
+                isValid = false;
+            } else {
+                $('#firstNameError').hide();
+            }
+
+            if (!lastName) {
+                $('#lastNameError').show();
+                isValid = false;
+            } else {
+                $('#lastNameError').hide();
+            }
+
+            if (paymentType === 'partial' && daysDiff <= 30) {
+                alert('Partial payment is only allowed for flights departing more than 30 days from now.');
+                return;
+            }
+
+            if (!isValid) {
+                return;
+            }
+
+            var fullName = firstName + ' ' + lastName;
+            $('#modalName').text(fullName);
+            updatePrice();
+
+            if (paymentType === 'partial') {
+                $('#partialPaymentSection').show();
+                $('#confirmPaymentButton').attr('onclick', 'payPartial()');
+            } else {
+                $('#partialPaymentSection').hide();
+                $('#confirmPaymentButton').attr('onclick', 'payFull()');
+            }
+
+            $('#bookingModal').modal('show');
+        }
+
+        function updateBalance() {
+            var partialAmount = parseFloat($('#partialAmount').val()) || 0;
+            var totalPrice = parseFloat($('#total_price').val());
+            var balance = totalPrice - partialAmount;
+            $('#modalBalance').text('{{ origin_currency }} ' + balance.toFixed(2));
+        }
+
+        function payFull() {
+            $('#bookingForm').attr('action', '{{ url_for("pay_full") }}');
+            $('#bookingForm').submit();
+        }
+
+        function payPartial() {
+            var partialAmount = parseFloat($('#partialAmount').val()) || 0;
+            var totalPrice = parseFloat($('#total_price').val());
+            var balance = totalPrice - partialAmount;
+
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'partial_amount',
+                value: partialAmount.toFixed(2)
+            }).appendTo('#bookingForm');
+
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'balance',
+                value: balance.toFixed(2)
+            }).appendTo('#bookingForm');
+
+            $('#bookingForm').attr('action', '{{ url_for("pay_partial") }}');
+            $('#bookingForm').submit();
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Booking Confirmation</h1>
+        <p><strong>Flight ID:</strong> {{ flight_id }}</p>
+        <p><strong>Airline ID:</strong> {{ airline_id }}</p>
+        <p><strong>Arrival:</strong> {{ arrival }}</p>
+        <p><strong>Departure:</strong> {{ departure }}</p>
+        <p><strong>Origin Airport:</strong> {{ origin }}</p>
+        <p><strong>Destination Airport:</strong> {{ destination }}</p>
+        <p><strong>Class Type:</strong> {{ class_type }}</p>
+        <p><strong>First Name:</strong> {{ first_name }}</p>
+        <p><strong>Last Name:</strong> {{ last_name }}</p>
+        <p><strong>Price:</strong> {{ currency }} {{ price }}</p>
+    </div>
+</body>
+</html>

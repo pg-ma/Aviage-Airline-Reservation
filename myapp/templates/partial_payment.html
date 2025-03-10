@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %} Partial Payment Details {% endblock %}
+
+{% block head %}
+<style>
+    body {
+        background: linear-gradient(135deg, #ece9e6 0%, #ffffff 100%);
+        font-family: 'Arial', sans-serif;
+    }
+    .container {
+        margin-top: 50px;
+        max-width: 800px;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #003366;
+        text-shadow: 1px 1px 2px #ffcc00;
+        margin-top: 20px;
+        text-align: center;
+    }
+    .detail-label {
+        font-weight: bold;
+    }
+    .btn-container {
+        margin-top: 20px;
+        text-align: left; /* Align buttons to the left */
+    }
+    .btn-container .btn {
+        margin-right: 10px; /* Adjust space between buttons */
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Partial Payment Details</h1>
+    
+    <p><span class="detail-label">Passenger Name:</span> {{ passenger_name }}</p>
+    <p><span class="detail-label">Departure:</span> {{ flight.Departure }}</p>
+    <p><span class="detail-label">Arrival:</span> {{ flight.Arrival }}</p>
+    <p><span class="detail-label">Origin Airport:</span> {{ flight.origin_airport.AirportName }}</p>
+    <p><span class="detail-label">Destination Airport:</span> {{ flight.destination_airport.AirportName }}</p>
+    <p><span class="detail-label">Airline Name:</span> {{ flight.flight.airline.AirlineName }} {{ flight.flight.airline.AirlineId}}</p>
+    <p><span class="detail-label">Class Type:</span> {{ class_type }}</p>
+    <p><span class="detail-label">Total Price:</span> {{ origin_currency }} {{ '%.2f' | format(total_price) }}</p>
+    <p><span class="detail-label">Partial Payment Made:</span> {{ origin_currency }} {{ '%.2f' | format(partial_amount) }}</p>
+    <p><span class="detail-label">Remaining Balance:</span> {{ origin_currency }} {{ '%.2f' | format(balance) }}</p>
+    <p><span class="detail-label">Booking Status:</span> {{ status }}</p>
+
+    <div class="btn-container">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        <a href="{{ url_for('manage_booking') }}" class="btn btn-info">Manage Booking</a>
+        <button type="button" class="btn btn-danger" onclick="showPayBalanceModal()">Pay Balance</button>
+    </div>
+</div>
+
+<!-- Bootstrap Modal for Paying Balance -->
+<div class="modal fade" id="payBalanceModal" tabindex="-1" role="dialog" aria-labelledby="payBalanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="payBalanceModalLabel">Pay Balance</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="payBalanceForm" method="POST" action="{{ url_for('pay_balance') }}">
+                    <input type="hidden" name="booking_id" value="{{ booking_id }}">
+                    <input type="hidden" name="current_balance" value="{{ balance }}">
+                    <input type="hidden" name="total_price" value="{{ total_price }}">
+
+                    <div class="form-group">
+                        <label for="payAmount">Enter Amount to Pay:</label>
+                        <input type="number" id="payAmount" name="pay_amount" class="form-control" min="0" step="0.01" required>
+                    </div>
+                </form>
+                <p>New Balance: <span id="newBalance">{{ origin_currency }} {{ '%.2f' | format(balance) }}</span></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="submitPayBalanceForm()">Confirm Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function showPayBalanceModal() {
+        $('#payBalanceModal').modal('show');
+        $('#payAmount').off('input').on('input', updateNewBalance);
+    }
+
+    function updateNewBalance() {
+        var payAmount = parseFloat($('#payAmount').val()) || 0;
+        var currentBalance = parseFloat($('input[name="current_balance"]').val());
+        var newBalance = currentBalance - payAmount;
+        $('#newBalance').text('{{ origin_currency }} ' + newBalance.toFixed(2));
+    }
+
+    function submitPayBalanceForm() {
+        $('#payBalanceForm').submit();
+    }
+</script>
+{% endblock %}

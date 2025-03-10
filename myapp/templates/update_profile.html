@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %} Update Profile - Aviage {% endblock %}
+
+{% block head %}
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f2f5 0%, #ffffff 100%);
+            font-family: 'Roboto', sans-serif;
+        }
+        .navbar {
+            background-color: #004080;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #ffffff !important;
+            font-size: 1.75rem;
+        }
+        .nav-link {
+            color: #ffffff !important;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .nav-link:hover {
+            color: #ffcc00 !important;
+        }
+        h1 {
+            color: #004080;
+            text-shadow: 1px 1px 3px #ffcc00;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+        .btn-primary, .btn-info, .btn-danger, .btn-outline-success {
+            font-weight: bold;
+            transition: background-color 0.3s, border-color 0.3s;
+            border-radius: 0.5rem;
+        }
+        .btn-primary {
+            background-color: #004080;
+            border-color: #004080;
+        }
+        .btn-primary:hover {
+            background-color: #ffcc00;
+            border-color: #ffcc00;
+        }
+        .btn-outline-success {
+            border-color: #004080;
+            color: #004080;
+        }
+        .btn-outline-success:hover {
+            background-color: #004080;
+            color: #ffffff;
+        }
+        .container {
+            margin-top: 50px;
+            max-width: 900px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+        .section-title {
+            color: #004080;
+            font-size: 1.75rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 5px;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #004080;
+        }
+        .form-group input, .form-group select {
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 0.5rem;
+            border: 1px solid #cccccc;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #004080;
+            box-shadow: 0 0 5px rgba(0, 64, 128, 0.3);
+        }
+    </style>
+    <!-- Include Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Update Profile</h1>
+        <form method="POST" action="{{ url_for('update_profile') }}">
+            <h2 class="section-title">Mailing Address</h2>
+            <div class="form-group">
+                <label for="street">Street</label>
+                <input type="text" class="form-control" id="street" name="street" value="{{ mail.Street if mail else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" class="form-control" id="city" name="city" value="{{ mail.City if mail else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="province">Province</label>
+                <input type="text" class="form-control" id="province" name="province" value="{{ mail.Province if mail else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="postal_code">Postal Code</label>
+                <input type="text" class="form-control" id="postal_code" name="postal_code" value="{{ mail.PostalCode if mail else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="country">Country</label>
+                <input type="text" class="form-control" id="country" name="country" value="{{ mail.Country if mail else '' }}">
+            </div>
+
+            <h2 class="section-title">Phone Number</h2>
+            <div class="form-group">
+                <label for="pcountry_code">Country Code</label>
+                <select class="form-control" id="pcountry_code" name="pcountry_code">
+                    <option value="+1" {% if phone and phone.PCountryCode == '+1' %}selected{% endif %}>USA (+1)</option>
+                    <option value="+1" {% if phone and phone.PCountryCode == '+1' %}selected{% endif %}>Canada (+1)</option>
+                    <option value="+44" {% if phone and phone.PCountryCode == '+44' %}selected{% endif %}>UK (+44)</option>
+                    <option value="+33" {% if phone and phone.PCountryCode == '+33' %}selected{% endif %}>France (+33)</option>
+                    <option value="+49" {% if phone and phone.PCountryCode == '+49' %}selected{% endif %}>Germany (+49)</option>
+                    <option value="+39" {% if phone and phone.PCountryCode == '+39' %}selected{% endif %}>Italy (+39)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="phone_no">Phone Number</label>
+                <input type="text" class="form-control" id="phone_no" name="phone_no" value="{{ phone.PhoneNo if phone else '' }}">
+            </div>
+
+            <h2 class="section-title">Fax Number</h2>
+            <div class="form-group">
+                <label for="fcountry_code">Country Code</label>
+                <select class="form-control" id="fcountry_code" name="fcountry_code">
+                    <option value="+1" {% if fax and fax.FCountryCode == '+1' %}selected{% endif %}>USA (+1)</option>
+                    <option value="+1" {% if fax and fax.FCountryCode == '+1' %}selected{% endif %}>Canada (+1)</option>
+                    <option value="+44" {% if fax and fax.FCountryCode == '+44' %}selected{% endif %}>UK (+44)</option>
+                    <option value="+33" {% if fax and fax.FCountryCode == '+33' %}selected{% endif %}>France (+33)</option>
+                    <option value="+49" {% if fax and fax.FCountryCode == '+49' %}selected{% endif %}>Germany (+49)</option>
+                    <option value="+39" {% if fax and fax.FCountryCode == '+39' %}selected{% endif %}>Italy (+39)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="farea_code">Area Code</label>
+                <select class="form-control" id="farea_code" name="farea_code">
+                    <!-- Canada -->
+                    <option value="416" {% if fax and fax.FAreaCode == '416' %}selected{% endif %}>Toronto (416)</option>
+                    <option value="514" {% if fax and fax.FAreaCode == '514' %}selected{% endif %}>Montreal (514)</option>
+                    <!-- USA -->
+                    <option value="212" {% if fax and fax.FAreaCode == '212' %}selected{% endif %}>New York (212)</option>
+                    <option value="312" {% if fax and fax.FAreaCode == '312' %}selected{% endif %}>Chicago (312)</option>
+                    <!-- UK -->
+                    <option value="20" {% if fax and fax.FAreaCode == '20' %}selected{% endif %}>London (20)</option>
+                    <option value="131" {% if fax and fax.FAreaCode == '131' %}selected{% endif %}>Edinburgh (131)</option>
+                    <!-- France -->
+                    <option value="1" {% if fax and fax.FAreaCode == '1' %}selected{% endif %}>Paris (1)</option>
+                    <option value="4" {% if fax and fax.FAreaCode == '4' %}selected{% endif %}>Nice (4)</option>
+                    <!-- Germany -->
+                    <option value="228" {% if fax and fax.FAreaCode == '228' %}selected{% endif %}>Bonn (228)</option>
+                    <option value="30" {% if fax and fax.FAreaCode == '30' %}selected{% endif %}>Berlin (30)</option>
+                    <!-- Italy -->
+                    <option value="6" {% if fax and fax.FAreaCode == '6' %}selected{% endif %}>Rome (6)</option>
+                    <option value="81" {% if fax and fax.FAreaCode == '81' %}selected{% endif %}>Naples (81)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fax_no">Fax Number</label>
+                <input type="text" class="form-control" id="fax_no" name="fax_no" value="{{ fax.FaxNo if fax else '' }}">
+            </div>
+
+            <button type="submit" class="btn btn-outline-success">Save</button>
+        </form>
+    </div>
+{% endblock %}
+
+
